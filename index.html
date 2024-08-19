@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Analysis Tool (C.A.T)</title>
+</head>
+<body>
+    <canvas id="lineChart" width="400" height="200"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js"></script>
+
+    <script>
+        const MQTT_BROKER = "mqtt.netpie.io";
+        const CLIENT_ID = "b023b1a1-3ae0-4321-ac99-6750c2380e1f";
+        const TOPIC1 = "@msg/sv";
+        const TOPIC2 = "@msg/CO2";
+        const TOPIC3 = "@msg/CO";
+        const TOPIC4 = "@msg/C2H50H";
+        const USERNAME = "sTvZVzkP6MWvJeH4ViZjszG6qsR7JL29";
+        const PASSWORD = "HxYh65eR893ZnfonirHuCEeWMKMWB8CJ";
+
+        var ctx = document.getElementById('lineChart').getContext('2d');
+
+        var lineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Sensor Value',
+                    data: [],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true,
+                },
+                {
+                    label: 'Carbon dioxide',
+                    data: [],
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: true,
+                },
+                {
+                    label: 'Carbon monoxide',
+                    data: [],
+                    borderColor: 'rgb(255, 254, 71, 1)',
+                    backgroundColor: 'rgba(255, 254, 71, 0.2)',
+                    fill: true,
+                },
+                {
+                    label: 'Alcohol',
+                    data: [],
+                    borderColor: 'rgba(0, 136, 241, 1)',
+                    backgroundColor: 'rgba(0, 136, 241, 0.2)',
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        function connectMQTT() {
+            const client = new Paho.MQTT.Client(MQTT_BROKER, 443, CLIENT_ID);
+
+            client.onConnectionLost = function (responseObject) {
+                console.log("Connection lost: " + responseObject.errorMessage);
+            };
+
+            client.onMessageArrived = function (message) {
+                const data = parseFloat(message.payloadString);
+                const time = new Date().toLocaleTimeString();
+
+                if (message.destinationName === TOPIC1) {
+                    addDataToChart(0, time, data);
+                } else if (message.destinationName === TOPIC2) {
+                    addDataToChart(1, time, data);
+                } else if (message.destinationName === TOPIC3) {
+                    addDataToChart(2, time, data);
+                } else if (message.destinationName === TOPIC4) {
+                    addDataToChart(3, time, data);
+                }
+            };
+
+            client.connect({
+                onSuccess: function () {
+                    console.log("Connected to MQTT broker");
+                    client.subscribe(TOPIC1);
+                    client.subscribe(TOPIC2);
+                    client.subscribe(TOPIC3);
+                    client.subscribe(TOPIC4);
+                },
+                userName: USERNAME,
+                password: PASSWORD,
+                useSSL: true
+            });
+        }
+
+        function addDataToChart(datasetIndex, label, data) {
+            if (lineChart.data.labels.length > 30) {
+                lineChart.data.labels.shift();
+                lineChart.data.datasets[datasetIndex].data.shift();
+            }
+            lineChart.data.labels.push(label);
+            lineChart.data.datasets[datasetIndex].data.push(data);
+
+            lineChart.update();
+        }
+
+        connectMQTT();
+    </script>
+</body>
+</html>
