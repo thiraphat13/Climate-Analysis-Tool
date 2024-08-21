@@ -7,6 +7,7 @@
 </head>
 <body>
     <canvas id="lineChart" width="400" height="200"></canvas>
+    <canvas id="lineChart1" width="400" height="200"></canvas>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -23,6 +24,7 @@
         const PASSWORD = "HxYh65eR893ZnfonirHuCEeWMKMWB8CJ";
 
         var ctx = document.getElementById('lineChart').getContext('2d');
+        var ctx1 = document.getElementById('lineChart1').getContext('2d');
 
         var lineChart = new Chart(ctx, {
             type: 'line',
@@ -34,7 +36,23 @@
                     borderColor: 'rgba(75, 192, 192, 1)',
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     fill: true,
-                },
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        var lineChart1 = new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
                 {
                     label: 'Carbon dioxide',
                     data: [],
@@ -79,13 +97,13 @@
                 const time = new Date().toLocaleTimeString();
 
                 if (message.destinationName === TOPIC1) {
-                    addDataToChart(0, time, data);
+                    addDataToChart(lineChart, time, data);
                 } else if (message.destinationName === TOPIC2) {
-                    addDataToChart(1, time, data);
+                    addDataToChart(lineChart1, time, data, 0);
                 } else if (message.destinationName === TOPIC3) {
-                    addDataToChart(2, time, data);
+                    addDataToChart(lineChart1, time, data, 1);
                 } else if (message.destinationName === TOPIC4) {
-                    addDataToChart(3, time, data);
+                    addDataToChart(lineChart1, time, data, 2);
                 }
             };
 
