@@ -171,6 +171,10 @@
         }
 
         function addDataToChart(datasetIndex, label, data) {
+            if (lineChart.data.labels.length > 10) {
+                lineChart.data.labels.shift();
+                lineChart.data.datasets.forEach(dataset => dataset.data.shift());
+            }
             lineChart.data.labels.push(label);
             lineChart.data.datasets[datasetIndex].data.push(data);
 
