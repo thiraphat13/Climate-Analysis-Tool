@@ -6,8 +6,7 @@
     <title>Climate Analysis Tool (C.A.T)</title>
 </head>
 <body>
-    <canvas id="lineChart" width="400" height=100%></canvas>
-    <canvas id="lineChart1" width="400" height=100%></canvas>
+    <canvas id="lineChart" width="400" height="200"></canvas>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -24,7 +23,6 @@
         const PASSWORD = "HxYh65eR893ZnfonirHuCEeWMKMWB8CJ";
 
         var ctx = document.getElementById('lineChart').getContext('2d');
-        var ctx1 = document.getElementById('lineChart1').getContext('2d');
 
         var lineChart = new Chart(ctx, {
             type: 'line',
@@ -35,43 +33,6 @@
                     data: [],
                     borderColor: 'rgba(75, 192, 192, 1)',
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    fill: true,
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        var lineChart1 = new Chart(ctx1, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [
-                {
-                    label: 'Carbon dioxide',
-                    data: [],
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    fill: true,
-                },
-                {
-                    label: 'Carbon monoxide',
-                    data: [],
-                    borderColor: 'rgb(255, 254, 71, 1)',
-                    backgroundColor: 'rgba(255, 254, 71, 0.2)',
-                    fill: true,
-                },
-                {
-                    label: 'Alcohol',
-                    data: [],
-                    borderColor: 'rgba(0, 136, 241, 1)',
-                    backgroundColor: 'rgba(0, 136, 241, 0.2)',
                     fill: true,
                 }]
             },
@@ -97,13 +58,7 @@
                 const time = new Date().toLocaleTimeString();
 
                 if (message.destinationName === TOPIC1) {
-                    addDataToChart(lineChart, time, data);
-                } else if (message.destinationName === TOPIC2) {
-                    addDataToChart(lineChart1, time, data, 0);
-                } else if (message.destinationName === TOPIC3) {
-                    addDataToChart(lineChart1, time, data, 1);
-                } else if (message.destinationName === TOPIC4) {
-                    addDataToChart(lineChart1, time, data, 2);
+                    addDataToChart(0, time, data);
                 }
             };
 
@@ -111,9 +66,6 @@
                 onSuccess: function () {
                     console.log("Connected to MQTT broker");
                     client.subscribe(TOPIC1);
-                    client.subscribe(TOPIC2);
-                    client.subscribe(TOPIC3);
-                    client.subscribe(TOPIC4);
                 },
                 userName: USERNAME,
                 password: PASSWORD,
