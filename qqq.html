@@ -1,24 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Climate Analysis Tool (C.A.T)</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        canvas {
+            background-color: #333333;
+            border: 1px solid #444444;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
+
 <body>
-    <canvas id="lineChart" width="400" height="200"></canvas>
+    <canvas id="lineChart"></canvas>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js"></script>
 
     <script>
         const MQTT_BROKER = "mqtt.netpie.io";
         const CLIENT_ID = "9b391744-7a9e-4cf2-be31-5be55fc3ca11";
-        const TOPIC1 = "@msg/sv";
-        const TOPIC2 = "@msg/CO2";
-        const TOPIC3 = "@msg/CO";
-        const TOPIC4 = "@msg/C2H50H";
+        const TOPIC2 = "@msg/NH3";
+        const TOPIC3 = "@msg/CO2";
+        const TOPIC4 = "@msg/CO";
+        const TOPIC5 = "@msg/C2H50H";
+        const TOPIC6 = "@msg/C6H6";
+        const TOPIC7 = "@msg/C7H8";
         const USERNAME = "wiwcrTbHm5xhdcpKSbQE9uRNifgkoi7F";
         const PASSWORD = "J5rmM4K6eqrMmdZ8ZrKpAqX9sj4oTH8H";
 
@@ -28,33 +51,78 @@
             type: 'line',
             data: {
                 labels: [],
-                datasets: [{
-                    label: 'Carbon dioxide',
-                    data: [],
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    fill: true,
-                },
-                {
-                    label: 'Carbon monoxide',
-                    data: [],
-                    borderColor: 'rgb(255, 254, 71, 1)',
-                    backgroundColor: 'rgba(255, 254, 71, 0.2)',
-                    fill: true,
-                },
-                {
-                    label: 'Alcohol',
-                    data: [],
-                    borderColor: 'rgba(0, 136, 241, 1)',
-                    backgroundColor: 'rgba(0, 136, 241, 0.2)',
-                    fill: true,
-                }]
+                datasets: [
+                    {
+                        label: 'Ammonia (NH3)',
+                        data: [],
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: true,
+                    },
+                    {
+                        label: 'Carbon dioxide (CO2)',
+                        data: [],
+                        borderColor: 'rgba(255, 205, 86, 1)',
+                        backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                        fill: true,
+                    },
+                    {
+                        label: 'Carbon monoxide (CO)',
+                        data: [],
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: true,
+                    },
+                    {
+                        label: 'Alcohol (C2H5OH)',
+                        data: [],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true,
+                    },
+                    {
+                        label: 'Benzene (C6H6)',
+                        data: [],
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                        fill: true,
+                    },
+                    {
+                        label: 'Toluene (C7H8)',
+                        data: [],
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                        fill: true,
+                    }
+                ]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            color: '#555555'
+                        },
+                        ticks: {
+                            color: '#ffffff'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: '#555555'
+                        },
+                        ticks: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
                     }
                 }
             }
@@ -72,11 +140,17 @@
                 const time = new Date().toLocaleTimeString();
 
                 if (message.destinationName === TOPIC2) {
-                    addDataToChart(1, time, data);
+                    addDataToChart(0, time, data);
                 } else if (message.destinationName === TOPIC3) {
-                    addDataToChart(2, time, data);
+                    addDataToChart(1, time, data);
                 } else if (message.destinationName === TOPIC4) {
+                    addDataToChart(2, time, data);
+                } else if (message.destinationName === TOPIC5) {
                     addDataToChart(3, time, data);
+                } else if (message.destinationName === TOPIC6) {
+                    addDataToChart(4, time, data);
+                } else if (message.destinationName === TOPIC7) {
+                    addDataToChart(5, time, data);
                 }
             };
 
@@ -86,6 +160,9 @@
                     client.subscribe(TOPIC2);
                     client.subscribe(TOPIC3);
                     client.subscribe(TOPIC4);
+                    client.subscribe(TOPIC5);
+                    client.subscribe(TOPIC6);
+                    client.subscribe(TOPIC7);
                 },
                 userName: USERNAME,
                 password: PASSWORD,
@@ -96,7 +173,7 @@
         function addDataToChart(datasetIndex, label, data) {
             if (lineChart.data.labels.length > 30) {
                 lineChart.data.labels.shift();
-                lineChart.data.datasets[datasetIndex].data.shift();
+                lineChart.data.datasets.forEach(dataset => dataset.data.shift());
             }
             lineChart.data.labels.push(label);
             lineChart.data.datasets[datasetIndex].data.push(data);
@@ -107,4 +184,5 @@
         connectMQTT();
     </script>
 </body>
+
 </html>
